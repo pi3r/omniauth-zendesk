@@ -13,13 +13,13 @@ module OmniAuth
       def request_phase
         session['omniauth.zendesk.account'] = fetch_zendesk_account
 
-        set_omiauth_zendesk_urls
+        set_omniauth_zendesk_urls
 
         super
       end
 
       def callback_phase
-        set_omiauth_zendesk_urls
+        set_omniauth_zendesk_urls
 
         super
       end
@@ -37,7 +37,7 @@ module OmniAuth
         end
       end
 
-      def set_omiauth_zendesk_urls
+      def set_omniauth_zendesk_urls
         account = session['omniauth.zendesk.account']
 
         options["client_options"] = {
