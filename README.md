@@ -18,7 +18,7 @@ use it, you'll need create an OAuth client in your admin interface
 
 ## Copyright and License
 
-Copyright 2013 Zendesk
+Copyright 2013 Pierre Nespo
 
 Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
 
