@@ -5,46 +5,35 @@ module OmniAuth
     class Zendesk < OmniAuth::Strategies::OAuth2
       class AccountError < ArgumentError; end
 
+      option :name, :zendesk
+
       option :scope, 'read write'
+
       option :token_params, {
         :grant_type => 'authorization_code'
       }
 
-      def request_phase
-        session['omniauth.zendesk.account'] = fetch_zendesk_account
+      option :client_options, {
+        :authorize_url => "/oauth/authorizations/new",
+        :token_url => "/oauth/tokens"
+      }
 
-        set_omniauth_zendesk_urls
-
+      def initialize(*)
         super
-      end
 
-      def callback_phase
-        set_omniauth_zendesk_urls
-
-        super
-      end
-
-      def token_params
-        options.token_params[:scope] = options[:scope]
-
-        super
+        set_client_options!
       end
 
       private
-      def fetch_zendesk_account
-        env["rack.request.query_hash"].fetch("account") do
-          raise AccountError.new "account key needed in query string"
-        end
+      def set_client_options!
+        options['client_options']['site'] = "https://#{account}.zendesk.com"
+        options['token_params']['scope'] = options['scope']
       end
 
-      def set_omniauth_zendesk_urls
-        account = session['omniauth.zendesk.account']
-
-        options["client_options"] = {
-          :site => "https://#{account}.zendesk.com",
-          :authorize_url => "https://#{account}.zendesk.com/oauth/authorizations/new",
-          :token_url => "https://#{account}.zendesk.com/oauth/tokens"
-        }
+      def account
+        @account ||= options.fetch 'account' do
+          raise ArgumentError.new('The :account options is missing')
+        end
       end
     end
   end

@@ -2,50 +2,61 @@ require 'spec_helper'
 require 'pry'
 
 describe OmniAuth::Strategies::Zendesk do
-  let(:app){ Rack::Builder.new do |b|
-    b.use Rack::Session::Cookie, {:secret => "abc123"}
-    b.use OmniAuth::Strategies::Zendesk
-    b.run lambda{|env| [200, {}, []]}
-  end.to_app }
+  let(:app) do
+    Rack::Builder.new do |b|
+      b.use Rack::Session::Cookie, { :secret => "abc123" }
+      b.use OmniAuth::Strategies::Zendesk
+      b.run lambda { |env|
+        [ 200, {}, [] ]
+      }
+    end.to_app
+  end
 
-  let(:account) { "services" }
+  let(:params) { [ 'id', 'secret', account: 'services' ] }
 
+  context 'without the :account option' do
+    it 'raises an ArgumentError' do
+      expect {
+        OmniAuth::Strategies::Zendesk.new('id', 'secret')
+      }.to raise_error(ArgumentError, 'The :account options is missing')
+    end
+  end
+
+  context 'with the :account option' do
+    it 'does not raise an ArgumentError' do
+      expect {
+        OmniAuth::Strategies::Zendesk.new(*params)
+      }.not_to raise_error
+    end
+
+    it 'sets the site url to the :account option' do
+      strategy = OmniAuth::Strategies::Zendesk.new(*params)
+
+      expect(strategy.options['client_options']['site'])
+        .to eql('https://services.zendesk.com')
+    end
+  end
 
   it "has default token_params" do
-    strat = OmniAuth::Strategies::Zendesk.new('adasd', 'asdasdasd')
+    strategy = OmniAuth::Strategies::Zendesk.new(*params)
 
-    expect(strat.token_params.to_hash).to eq({
-                                                 "grant_type" => 'authorization_code',
-                                                 "scope" => 'read write'
-                                               })
+    expect(strategy.token_params.to_hash)
+      .to eq({
+               "grant_type" => 'authorization_code',
+               "scope" => 'read write'
+             })
   end
 
   it "allows scope modification from options" do
-    strat = OmniAuth::Strategies::Zendesk.new('adasd', 'asdasdasd', { :scope => 'read' })
+    strat = OmniAuth::Strategies::Zendesk.new('id', 'secret', {
+                                                :scope => 'read',
+                                                :account => 'services'
+                                              })
 
-    expect(strat.token_params.to_hash).to eq({
-                                                 "grant_type" => 'authorization_code',
-                                                 "scope" => 'read'
-                                               })
-  end
-
-  context "request phase" do
-    context "without an account parameter" do
-      it "raises an error" do
-        expect{ get '/auth/zendesk' }.to raise_error(OmniAuth::Strategies::Zendesk::AccountError)
-      end
-    end
-
-    context "with an account parameter" do
-      before(:each) { get "/auth/zendesk?account=#{account}" }
-
-      it "sets the account in session" do
-        expect(last_request.env["rack.session"]["omniauth.zendesk.account"]).to eql account
-      end
-
-      it "calls the right authorize_url" do
-        expect(last_response.header["Location"]).to match("https://#{account}.zendesk.com/oauth/authorizations/new")
-      end
-    end
+    expect(strat.token_params.to_hash)
+      .to eq({
+               "grant_type" => 'authorization_code',
+               "scope" => 'read'
+             })
   end
 end
