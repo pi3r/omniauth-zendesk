@@ -15,7 +15,7 @@ Gem::Specification.new do |gem|
   gem.require_paths = ["lib"]
   gem.version       = OmniAuth::Zendesk::VERSION
 
-  gem.add_dependency 'omniauth', '~> 1.1'
+  gem.add_dependency 'omniauth', '~> 1.1.4'
   gem.add_dependency 'omniauth-oauth2', '~> 1.1'
   gem.add_development_dependency 'rspec', '~> 2.14'
   gem.add_development_dependency 'rack-test'
