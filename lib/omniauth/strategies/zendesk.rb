@@ -3,8 +3,6 @@ require 'omniauth-oauth2'
 module OmniAuth
   module Strategies
     class Zendesk < OmniAuth::Strategies::OAuth2
-      class AccountError < ArgumentError; end
-
       option :name, :zendesk
 
       option :scope, 'read write'
@@ -12,6 +10,8 @@ module OmniAuth
       option :token_params, {
         :grant_type => 'authorization_code'
       }
+
+      option :token_options, [ :scope ]
 
       option :client_options, {
         :authorize_url => "/oauth/authorizations/new",
@@ -27,7 +27,6 @@ module OmniAuth
       private
       def set_client_options!
         options['client_options']['site'] = "https://#{account}.zendesk.com"
-        options['token_params']['scope'] = options['scope']
       end
 
       def account
