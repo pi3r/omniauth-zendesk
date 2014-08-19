@@ -10,7 +10,7 @@ module OmniAuth
         :grant_type => 'authorization_code'
       }
       uid{
-        user_info['id']
+        host = URI( .raw_info.user.url ).host.split(".").first
       }
 
       extra do
