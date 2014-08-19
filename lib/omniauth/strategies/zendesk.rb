@@ -9,6 +9,7 @@ module OmniAuth
       option :token_params, {
         :grant_type => 'authorization_code'
       }
+      
       uid{
         host = URI( raw_info["user"]["url"] ).host.split(".").first
       }
