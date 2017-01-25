@@ -9,6 +9,28 @@ module OmniAuth
       option :token_params, {
         :grant_type => 'authorization_code'
       }
+      
+      uid{
+        host = URI( raw_info["user"]["url"] ).host.split(".").first
+      }
+
+      extra do
+        {
+          :raw_info => raw_info
+        }
+      end
+
+      def raw_info
+        @raw_info ||= MultiJson.decode(access_token.get('/api/v2/users/me').body) if access_token
+      rescue ::Errno::ETIMEDOUT
+        raise ::Timeout::Error
+      end
+
+      # Provide the "user" portion of the raw_info
+      def user_info
+        @user_info ||= raw_info.nil? ? {} : raw_info
+      end
+
 
       def request_phase
         session['omniauth.zendesk.account'] = fetch_zendesk_account
