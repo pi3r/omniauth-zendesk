@@ -10,6 +10,8 @@ module OmniAuth
         :grant_type => 'authorization_code'
       }
 
+      option :callback_url
+
       def request_phase
         session['omniauth.zendesk.account'] = fetch_zendesk_account
 
@@ -28,6 +30,10 @@ module OmniAuth
         options.token_params[:scope] = options[:scope]
 
         super
+      end
+
+      def callback_url
+        options.callback_url || super
       end
 
       private
